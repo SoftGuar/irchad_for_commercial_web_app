@@ -67,16 +67,16 @@ const Sidebar = () => {
         {/* Sub-menu */}
         {isAccountsOpen && (
           <div className="ml-6 mt-1 space-y-1">
-            {["List", "Add customer"].map((item) => (
+            {[{Label:"List", route:"customers"}, {Label: "Add customer", route:"add-customer"}].map((item) => (
               <Link
-                key={item}
-                href={`/${item}`}
+                key={item.Label}
+                href={`/${item.route}`}
                 className={`flex items-center gap-2 px-2 py-1 text-sm rounded-md ${
-                  selectedItem === item ? "bg-[#FF8B00]/[0.64]" : "text-gray-300 hover:text-white"
+                  selectedItem === item.Label ? "bg-[#FF8B00]/[0.64]" : "text-gray-300 hover:text-white"
                 }`}
-                onClick={() => handleSubmenuClick(item)}
+                onClick={() => handleSubmenuClick(item.Label)}
               >
-                <span className="text-lg">•</span> {item.charAt(0).toUpperCase() + item.slice(1)}
+                <span className="text-lg">•</span> {item.Label.charAt(0).toUpperCase() + item.Label.slice(1)}
               </Link>
             ))}
           </div>
