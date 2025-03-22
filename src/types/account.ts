@@ -1,0 +1,10 @@
+export interface Account {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    addingDate: string;
+    lastEdited: string;
+    note: string;
+    previlegeLevel: string;
+}

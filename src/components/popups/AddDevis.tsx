@@ -2,16 +2,16 @@ import Image from "next/image";
 
 
 interface AddDevisProps {
-    closePopup: () => void;
+    
 }
   
-const AddDevis: React.FC<AddDevisProps> = ({ closePopup }) => {
+const AddDevis: React.FC<AddDevisProps> = () => {
     const handleSubmit = () => {
-      closePopup();
+     
     };
   
     return (
-      <div className="flex flex-col items-center relative bg-irchad-gray-dark shadow-xl py-[30px] px-[45px] rounded-[30px] space-y-2 w-1/3">       
+      <div className="flex flex-col items-center relative bg-[#181818] shadow-xl py-[30px] px-[45px] rounded-[30px] space-y-2 w-1/3">       
         
         <div className="flex items-center gap-2 text-xl font-bold text-white mt-6 mb-8">
             <Image src="/images/logo.png" alt="IRCHAD" width={32} height={32} />
@@ -69,9 +69,7 @@ const AddDevis: React.FC<AddDevisProps> = ({ closePopup }) => {
             Add
           </button>
 
-          <button onClick={closePopup} className="bg-irchad-gray-light text-irchad-gray-dark w-full px-4 py-2 mt-3 rounded-lg outline-none">
-            Cancel
-          </button>
+       
         </div>
       </div>
     );
