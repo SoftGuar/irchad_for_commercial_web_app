@@ -1,36 +1,31 @@
 "use client";
 import Image from "next/image";
 import SalesList from "@/components/lists/SalesList";
+import PopUpScreen from "@/components/popups/popUpScreen";
+import AddDevis from "@/components/popups/AddDevis";
 
-//sample data
-const sales = Array.from({ length: 10 }, (_, index) => ({
-  id: `${index + 1}`,
-  name: `Customer ${index + 1}`,
-  agent: `Agent ${index + 1}`,
-  deviceId: `${index + 10}`,
-  phone: `123-456-789${index}`,
-  email: `customer${index + 1}@gmail.com`,
-  addingDate: `2024-12-${String((index % 31) + 1).padStart(2, "0")}`,
-}));
 
-const SalesPage = () => {
+
+const DevisPage = () => {
   return (
     <div className="flex flex-col w-full min-h-screen pb-5">
       <div className="flex relative w-full">
         <Image src="/images/headers/header.svg"  alt="header" width={1663} height={236}/>
         <div className="absolute inset-0 flex flex-col p-6 items-start justify-start text-white text-[35px] font-roboto-bold">
-          Sales
+          New Devis
           <p className="text-[20px] font-roboto-light">Where you manage your sales</p>
         </div>
       </div>
 
       <div className="flex -mt-10 justify-center items-start min-h-screen w-full z-0">
-        <div className="w-[95%]">
-          <SalesList title="Sale" accountsData={sales} />
+        <div className="flex justify-center w-[95%]">
+       
+          <AddDevis  />
+     
         </div>
       </div>
     </div>
   );
 };
 
-export default SalesPage;
+export default DevisPage;

@@ -6,8 +6,8 @@ import Link from "next/link";
 
 const Sidebar = () => {
   const [isAccountsOpen, setIsAccountsOpen] = useState(true);
-  const [selectedItem, setSelectedItem] = useState("List");
-  const [selectedMain, setSelectedMain] = useState("customers"); // Track the selected main menu item
+  const [selectedItem, setSelectedItem] = useState("");
+  const [selectedMain, setSelectedMain] = useState(""); // Track the selected main menu item
 
  
   const handleSubmenuClick = (item: string) => {
@@ -67,7 +67,7 @@ const Sidebar = () => {
         {/* Sub-menu */}
         {isAccountsOpen && (
           <div className="ml-6 mt-1 space-y-1">
-            {[{Label:"List", route:"customers"}, {Label: "Add customer", route:"add-customer"}].map((item) => (
+            {[{Label:"List", route:"customers"}, {Label: "Add customer", route:"customers"}].map((item) => (
               <Link
                 key={item.Label}
                 href={`/${item.route}`}
