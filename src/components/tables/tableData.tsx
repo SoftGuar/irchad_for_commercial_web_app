@@ -65,19 +65,22 @@ const TableData = <T,>({
             )}
           </div>
         ))}
+        {page !=="products" &&
         <div className={`flex ${page === "pois" || page === "zones" ? 'w-1/3' : 'w-1/12'} justify-end items-center space-x-2`}>
-            <Trash2 className="text-irchad-gray-light"/>
-            <div className="flex space-x-3">
-              <Filter className="text-irchad-gray-light"/>
-              <p className="text-irchad-gray-light text-[16px] font-roboto">Filter</p>
-            </div>
-          </div>
+        <Trash2 className="text-irchad-gray-light"/>
+        <div className="flex space-x-3">
+          <Filter className="text-irchad-gray-light"/>
+          <p className="text-irchad-gray-light text-[16px] font-roboto">Filter</p>
+        </div>
+      </div>
+        }
+
       </div>
 
       {/* content */}
       <div className="flex flex-col w-full">
         {data.map((item, index) => (
-          <div key={index} className="flex relative justify-center items-center w-full px-5 py-4 bg-irchad-gray-dark border-b border-irchad-gray-light">
+          <div key={index} className="flex relative justify-between items-center w-full px-5 py-4 bg-irchad-gray-dark border-b border-irchad-gray-light">
             {columns.slice(1).map((column, colIndex) => (
               <div key={colIndex} className={`flex ${(page === "pois" || page === "zones") ? 'w-2/3' : 'w-1/5'} justify-start items-center`}>
                 {column.key === "name" ? (
@@ -97,23 +100,28 @@ const TableData = <T,>({
                 )}
               </div>
             ))}
-            <div className={`flex ${page === "pois" || page === "zones" ? 'w-1/3' : 'w-1/12'} justify-end items-center space-x-6`}>
-              <Trash2 className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onDelete(item)}/>
-              {page === "devices" ? 
-                <Ban className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/>
-                : 
-                page === "environments" ? 
-                <Download className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/>
-                :
-                <Pen className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/>
-              }
-              {page === "pois" ? 
-                <Link className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/> 
-                : 
-                page !== "zones" &&
-                <ArrowRight className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => openDetails(item[columns[0].key])}/>
-              }
-            </div>
+            {page !== "products" &&
+                        <div className={`flex ${page === "pois" || page === "zones" ? 'w-1/3' : 'w-1/12'} justify-end items-center space-x-6`}>
+
+                          <Trash2 className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onDelete(item)}/>
+                          {page === "devices" ? 
+                            <Ban className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/>
+                            : 
+                            page === "environments" ? 
+                            <Download className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/>
+                            :
+                            <Pen className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/>
+                          }
+                          {page === "pois" ? 
+                            <Link className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => onEdit(item)}/> 
+                            : 
+                            page !== "zones" &&
+                            <ArrowRight className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => openDetails(item[columns[0].key])}/>
+                          }
+                          </div>
+            }
+
+         
           </div>
         ))}
       </div>

@@ -105,6 +105,17 @@ const Sidebar = () => {
           <IdCard className="w-5 h-5" />
           <span>Devis</span>
         </Link>
+
+        <Link
+          href="/products"
+          className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+            selectedMain === "products" ? "bg-[#FF8B00]/[0.64]" : "text-gray-300 hover:text-white"
+          }`}
+          onClick={() => handleMainClick("products")}
+        >
+          <IdCard className="w-5 h-5" />
+          <span>Products</span>
+        </Link>
       </nav>
     </div>
   );
