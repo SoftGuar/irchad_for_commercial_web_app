@@ -1,9 +1,29 @@
 export interface Sale {
-    id: string;
-    name: string;
-    agent: string;
-    deviceId: string;
-    phone: string;
-    email: string;
-    addingDate: string;
+    id: number;
+    userName: string;
+    commercialName: string;
+    date: string;
+    dispositiveId: number;
+    Status: boolean;
 }
+
+export type Quotation = {
+    id: number;
+    user_id: number;
+    date: string;
+    
+};
+  
+export type Product = {
+    id: number;
+};
+  
+export type QuotationProductAssociation = {
+    product_id: number;
+    count: number;
+};
+  
+export type QuotationDemand = {
+    user_id: number;
+    products: QuotationProductAssociation[];
+};

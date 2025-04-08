@@ -8,6 +8,7 @@ import Pagination from "@/components/tables/paginationComponent";
 import TableData from "@/components/tables/tableData";
 import { useState } from "react";
 import { Account } from "@/types/account";
+import { commercialApi } from "@/services/commercialApi";
 
 interface AccountListProps {
   title: string;
@@ -21,6 +22,7 @@ const AccountList: React.FC<AccountListProps> = ({ title, accountsData }) => {
   const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
   const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
   const [accounts, setAccounts] = useState(accountsData);
+  const [loading, setLoading] = useState(true);
 
   const [selectedSort, setSelectedSort] = useState<string>("Name");
   const sortingOptions = ["Name", "Adding date", "Last Edited"];
@@ -75,6 +77,32 @@ const AccountList: React.FC<AccountListProps> = ({ title, accountsData }) => {
 
   const displayedAccounts = accounts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await commercialApi.users.getAll();
+      
+      if (response.success) {
+        const formattedUsers = response.data.map((user) => ({
+          id: user.id.toString(),
+          name: `${user.first_name} ${user.last_name}`.trim(),
+          email: user.email,
+          phone: user.phone,
+          addingDate: new Date().toISOString().split('T')[0],
+          lastEdited: new Date().toISOString().split('T')[0],
+          note: '',
+          previlegeLevel: '2',
+        }));
+        
+        setAccounts(formattedUsers);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const columns = [
     { key: "id", label: "Id" },
     { key: "name", label: "Name" },
@@ -115,9 +143,26 @@ const AccountList: React.FC<AccountListProps> = ({ title, accountsData }) => {
 
       {showPopup && (
         <PopUpScreen>
-          {showPopup === "add" && <AddCustomer closePopup={closePopup} />}
-          {showPopup === "edit" && accountToEdit && <EditCustomer user={accountToEdit}  closePopup={closePopup} />}
-          {showPopup === "delete" && accountToDelete && <DeleteCustomer  closePopup={closePopup} />}
+          {showPopup === "add" && 
+            <AddCustomer 
+              closePopup={closePopup} 
+              onUserAdded={fetchUsers}
+            />
+          }
+          {showPopup === "edit" && accountToEdit && 
+            <EditCustomer 
+              user={accountToEdit}  
+              closePopup={closePopup} 
+              onUserUpdated={fetchUsers} 
+            />
+          }
+          {showPopup === "delete" && accountToDelete && 
+            <DeleteCustomer  
+              closePopup={closePopup} 
+              userId={accountToDelete.id} 
+              onUserDeleted={fetchUsers} 
+            />
+          }
         </PopUpScreen>
       )}
     </div>

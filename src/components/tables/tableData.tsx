@@ -52,7 +52,7 @@ const TableData = <T,>({
       <div className="flex relative justify-between w-full px-5 py-2 bg-irchad-gray border-y border-irchad-gray-light">
         {columns.slice(1).map((column, index) => (
           <div key={index} className={`flex ${(page === "pois" || page === "zones") ? 'w-2/3' : 'w-1/5'} justify-start items-center space-x-3`}>
-            {column.key === "name" ? (
+            {column.key === "name" || column.key === "userName" ? (
               <>
                 <Checkbox
                   checked={isHeaderChecked}
@@ -83,7 +83,7 @@ const TableData = <T,>({
           <div key={index} className="flex relative justify-between items-center w-full px-5 py-4 bg-irchad-gray-dark border-b border-irchad-gray-light">
             {columns.slice(1).map((column, colIndex) => (
               <div key={colIndex} className={`flex ${(page === "pois" || page === "zones") ? 'w-2/3' : 'w-1/5'} justify-start items-center`}>
-                {column.key === "name" ? (
+                {(column.key === "name" || column.key === "userName") ? (
                   <>
                     <Checkbox
                       checked={checkedRows[index]}
@@ -119,9 +119,7 @@ const TableData = <T,>({
                             <ArrowRight className="text-irchad-gray-light cursor-pointer w-5 h-5" onClick={() => openDetails(item[columns[0].key])}/>
                           }
                           </div>
-            }
-
-         
+            }         
           </div>
         ))}
       </div>

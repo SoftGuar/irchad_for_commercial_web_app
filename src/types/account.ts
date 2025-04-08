@@ -6,5 +6,4 @@ export interface Account {
     addingDate: string;
     lastEdited: string;
     note: string;
-    previlegeLevel: string;
 }

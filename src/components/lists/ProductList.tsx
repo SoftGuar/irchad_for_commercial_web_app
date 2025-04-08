@@ -1,8 +1,4 @@
 "use client";
-import AddCustomer from "@/components/popups/AddCustomer";
-import DeleteCustomer from "@/components/popups/DeleteCustomer";
-import EditCustomer from "@/components/popups/EditCustomer";
-import PopUpScreen from "@/components/popups/popUpScreen";
 import HeaderSection from "@/components/tables/tableHeader";
 import Pagination from "@/components/tables/paginationComponent";
 import TableData from "@/components/tables/tableData";
@@ -12,6 +8,7 @@ import { Product } from "@/types/product";
 interface AccountListProps {
   title: string;
   productsData: Product[];
+  loading: boolean;
 }
 
 const ProductList: React.FC<AccountListProps> = ({ title, productsData }) => {
@@ -25,8 +22,6 @@ const ProductList: React.FC<AccountListProps> = ({ title, productsData }) => {
 
   const itemsPerPage = 10;
   const totalPages = Math.ceil(products.length / itemsPerPage);
-
-
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.toLowerCase();
@@ -50,8 +45,6 @@ const ProductList: React.FC<AccountListProps> = ({ title, productsData }) => {
       case "Price":
         sortedItems.sort((a, b) => b.price - a.price);
         break;
-          
-
     }
 
     setProducts(sortedItems);
@@ -94,8 +87,6 @@ const ProductList: React.FC<AccountListProps> = ({ title, productsData }) => {
         onPrevious={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
         onPageSelect={setCurrentPage}
       />
-
-  
     </div>
   );
 };

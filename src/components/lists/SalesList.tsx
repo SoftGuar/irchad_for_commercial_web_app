@@ -11,16 +11,16 @@ import { Sale } from "@/types/sale";
 
 interface SalesListProps {
   title: string;
-  accountsData: Sale[];
+  salesData: Sale[];
 }
 
-const SalesList: React.FC<SalesListProps> = ({ title, accountsData }) => {
+const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showPopup, setShowPopup] = useState<"add" | "edit" | "delete" | null>(null);
   const [accountToEdit, setAccountToEdit] = useState<Sale | null>(null);
   const [accountToDelete, setAccountToDelete] = useState<Sale | null>(null);
-  const [accounts, setAccounts] = useState(accountsData);
+  const [accounts, setAccounts] = useState(salesData);
 
   const [selectedSort, setSelectedSort] = useState<string>("Name");
   const sortingOptions = ["Name", "Adding date"];
@@ -48,9 +48,9 @@ const SalesList: React.FC<SalesListProps> = ({ title, accountsData }) => {
     setSearchValue(value);
 
     if (value.trim() !== "") {
-      setAccounts(accountsData.filter((account) => account.name.toLowerCase().includes(value)));
+      setAccounts(salesData.filter((sale) => sale.userName.toLowerCase().includes(value)));
     } else {
-      setAccounts(accountsData);
+      setAccounts(salesData);
     }
   };
 
@@ -59,11 +59,11 @@ const SalesList: React.FC<SalesListProps> = ({ title, accountsData }) => {
     const sortedItems = [...accounts];
 
     switch (sortOption) {
-      case "Name":
-        sortedItems.sort((a, b) => a.name.localeCompare(b.name));
+      case "Use name":
+        sortedItems.sort((a, b) => a.userName.localeCompare(b.userName));
         break;
       case "Adding date":
-        sortedItems.sort((a, b) => new Date(b.addingDate).getTime() - new Date(a.addingDate).getTime());
+        sortedItems.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         break;
     }
 
@@ -74,11 +74,11 @@ const SalesList: React.FC<SalesListProps> = ({ title, accountsData }) => {
 
   const columns = [
     { key: "id", label: "Id" },
-    { key: "name", label: "Name" },
-    { key: "agent", label: "Agent" },
-    { key: "deviceId", label: "Device ID" },
-    { key: "phone", label: "Phone number" },
-    { key: "addingDate", label: "Adding date" }
+    { key: "userName", label: "Name" },
+    { key: "commercialName", label: "Agent" },
+    { key: "dispositiveId", label: "Device ID" },
+    { key: "Status", label: "Status" },
+    { key: "date", label: "Adding date" }
   ];
 
   return (

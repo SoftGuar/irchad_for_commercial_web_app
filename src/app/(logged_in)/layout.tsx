@@ -3,22 +3,25 @@ import Sidebar from '../../components/shared/sidebar/sidebar';
 import Navbar from '../../components/shared/navbar/navbar';
 import Footer from '../../components/shared/footer/footer';
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Layout({ 
     children 
-} : {
+}: {
     children: React.ReactNode;
 }) {
-
     const router = useRouter();
 
-    const goToProfile = () => {
-        router.push(``);
-      };
+    useEffect(() => {
+        const checkAuth = () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/login');
+            }
+        };
 
-      const goToNotification = () => {
-        router.push(``);
-      };
+        checkAuth();
+    }, [router]);
 
     return (
         <>
