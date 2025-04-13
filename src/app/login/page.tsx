@@ -3,21 +3,18 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/utils/userContext';
 import { authApi } from '@/services/authApi';
+import { userApi } from '@/services/userApi';
 
 export default function LoginPage() {
+  const { setUser } = useUser();
+
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState(''); 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem('token');
-  //   if (token) {
-  //     router.push('/(logged_in)');
-  //   }
-  // }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +28,12 @@ export default function LoginPage() {
       if (response.token) {
         localStorage.setItem('token', response.token);
         document.cookie = `token=${response.token}; path=/; max-age=${60 * 60 * 24}`;
-        router.push('/'); 
+        
+        const userResponse = await userApi.getCurrentUser();
+        if (userResponse.success) {
+          setUser(userResponse.data);
+          router.push('/(logged_in)');
+        }
       } else {
         setError('Invalid response from server');
       }

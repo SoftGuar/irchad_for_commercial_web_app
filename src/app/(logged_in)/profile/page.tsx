@@ -3,34 +3,43 @@ import UserHeaderBar from "@/components/cards/UserHeaderBar";
 import UserInfoCard from "@/components/cards/UserInfoCard";
 import ActivityHistoryCard from "@/components/cards/ActivityHistoryCard";
 import { useState } from "react";
-
+import { useUser } from "@/utils/userContext";
+import { User } from "@/types/user";
+import { userApi } from "@/services/userApi";
 
 const ProfilePage = () => {
-    const [user, setUser] = useState(
-      {
-        userName: "Remache Islam",
-        firstName:"Islam",
-        lastName:"Remache",
-        email: "isalmrmh@gmail.com",
-        phone: "+213 555 123 456",
-        id: "0B26ECBAXD78CCVX12V",
-        privilegeLvl: 2,
-        avatar: "/images/ProfilePic.png",
-        role: "commercial",
-        status:"Active",
-        accountState:"Active",
-        joinedAt:"2025-03-09",
-        deviceId: "AV983NF0938FDHRAAC",
-        activities: [
-          { message: "Logged in", timestamp: "2025-03-11 10:30 AM" },
-          { message: "Updated profile information", timestamp: "2025-03-10 03:15 PM" },
-          { message: "Changed password", timestamp: "2025-03-09 06:45 PM" },
-          { message: "Updated profile information", timestamp: "2025-02-20 06:45 PM" },
-        ],
-      }
-    )
+    const { user, fetchUser } = useUser();
+
+    const activities = [
+        { message: "Logged in", timestamp: "2025-03-11 10:30 AM" },
+        { message: "Updated profile information", timestamp: "2025-03-10 03:15 PM" },
+        { message: "Changed password", timestamp: "2025-03-09 06:45 PM" },
+        { message: "Updated profile information", timestamp: "2025-02-20 06:45 PM" },
+    ]
 
     const [isEditing, setIsEditing] = useState(false)
+
+    const handleSave = async (updatedUser: Partial<User>) => {
+      try {
+        const response = await userApi.updateUser({
+          first_name: updatedUser.first_name,
+          last_name: updatedUser.last_name,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+        });
+        
+        if (response.success) {
+          await fetchUser(); 
+          setIsEditing(false);
+        }
+      } catch (error) {
+        console.error('Failed to update user:', error);
+      }
+    };
+
+    if (!user) {
+      return <div>Loading user data...</div>;
+    }
 
     return (
       <div className="p-0">
@@ -42,9 +51,9 @@ const ProfilePage = () => {
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-2">
-          <UserInfoCard user={user} isEditing={isEditing} onSave={() => setIsEditing(false)} setUser={setUser} />
+          <UserInfoCard user={user} isEditing={isEditing} onSave={handleSave}/>
         </div>
-        <ActivityHistoryCard title="Activity History" activities={user.activities} />
+        <ActivityHistoryCard title="Activity History" activities={activities} />
       </div>
     </div>
     )

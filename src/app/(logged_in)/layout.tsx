@@ -1,7 +1,8 @@
 "use client";
-import Sidebar from '../../components/shared/sidebar/sidebar';
-import Navbar from '../../components/shared/navbar/navbar';
-import Footer from '../../components/shared/footer/footer';
+import Sidebar from '@/components/shared/sidebar/sidebar';
+import Navbar from '@/components/shared/navbar/navbar';
+import Footer from '@/components/shared/footer/footer';
+import { UserProvider } from '@/utils/userContext';
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -24,13 +25,13 @@ export default function Layout({
     }, [router]);
 
     return (
-        <>
+        <UserProvider>
             <Navbar />
             <div className="flex">
                 <Sidebar />
                 <main className="flex-1 bg-irchad-gray-dark">{children}</main>
             </div>
             <Footer />
-        </>
+        </UserProvider>
     )
 }

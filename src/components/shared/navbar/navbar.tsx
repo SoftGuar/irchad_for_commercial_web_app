@@ -3,9 +3,11 @@ import { MagnifyingGlassIcon, BellIcon, UserCircleIcon } from "@heroicons/react/
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Notifications from "@/components/popups/Notifications";
+import { useUser } from "@/utils/userContext";
+
 
 const Navbar = () => {
-  const user = { name: "Aouinine Lylia", role: "Commercial" };
+  const { user, isLoading } = useUser();
   const router = useRouter()
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -18,7 +20,6 @@ const Navbar = () => {
     { message: "Updated profile information", timestamp: "2025-02-20 06:45 PM" },
   ];
 
-  // Close popup when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
@@ -29,6 +30,9 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  if (isLoading) {
+    return <div>Loading user...</div>;
+  }
 
   return (
     <nav className="bg-[#2E2E2E] text-white py-3 px-6 flex items-center justify-between">
@@ -61,8 +65,8 @@ const Navbar = () => {
         </div>        <div className="flex items-center gap-2">
           <UserCircleIcon onClick={()=> router.push('/profile')}  className="h-8 w-8 text-gray-400 cursor-pointer" />
           <div className="text-sm">
-            <p className="font-semibold">{user.name}</p>
-            <p className="text-gray-400 text-xs">{user.role}</p>
+            {user ? `${user.first_name} ${user.last_name}` : 'Guest'}
+            <p className="text-gray-400 text-xs">Commercial</p>
           </div>
         </div>
       </div>

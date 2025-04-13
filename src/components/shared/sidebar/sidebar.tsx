@@ -96,14 +96,14 @@ const Sidebar = () => {
 
         {/* Environments Section */}
         <Link
-          href="/devis"
+          href="/quotations"
           className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
             selectedMain === "devis" ? "bg-[#FF8B00]/[0.64]" : "text-gray-300 hover:text-white"
           }`}
           onClick={() => handleMainClick("devis")}
         >
           <IdCard className="w-5 h-5" />
-          <span>Devis</span>
+          <span>Quotations</span>
         </Link>
 
         <Link

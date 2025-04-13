@@ -1,10 +1,38 @@
 import Image from "next/image";
+import { useState } from "react";
+import { salesApi } from "@/services/salesApi";
 
 interface DeleteSaleProps {
     closePopup: () => void;
+    saleId: number;
+    onSaleDeleted: () => void;
 }
 
-const DeleteSale: React.FC<DeleteSaleProps> = ({ closePopup }) => {
+const DeleteSale: React.FC<DeleteSaleProps> = ({ closePopup, saleId, onSaleDeleted }) => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleDelete = async () => {
+        setLoading(true);
+        setError('');
+    
+        try {
+          const response = await salesApi.transactions.delete(saleId);  //need to be changed with product transaction
+          
+          if (response.success) {
+            closePopup();
+            onSaleDeleted(); 
+          } else {
+            setError('Failed to delete sale');
+          }
+        } catch (err) {
+          console.error('Error deleting sale:', err);
+          setError('An error occurred while deleting the sale');
+        } finally {
+          setLoading(false);
+        }
+    };
+    
     return (
         <div className="flex flex-col items-center relative bg-irchad-gray-dark shadow-xl py-[30px] px-[45px] rounded-[30px] space-y-4 w-1/3">       
             
@@ -18,12 +46,21 @@ const DeleteSale: React.FC<DeleteSaleProps> = ({ closePopup }) => {
                 Are you sure you want to delete this sale? This action cannot be undone.
             </p>
 
+            {error && (
+                <div className="text-red-500 text-sm w-full text-center">
+                {error}
+                </div>
+            )}
+
             <div className="flex flex-col w-2/3 pt-4">
                 <button 
-                    
-                    className="bg-red-600 hover:bg-red-700 text-irchad-white w-full px-4 py-2 mt-3 rounded-lg outline-none"
+                    onClick={handleDelete}
+                    disabled={loading}
+                    className={`bg-red-600 text-irchad-white w-full px-4 py-2 mt-3 rounded-lg outline-none ${
+                        loading ? 'opacity-50' : 'hover:bg-red-700'
+                    }`}
                 >
-                    Delete
+                {loading ? 'Deleting...' : 'Delete'}
                 </button>
 
                 <button 

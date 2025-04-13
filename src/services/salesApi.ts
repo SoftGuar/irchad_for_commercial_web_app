@@ -38,6 +38,25 @@ export const salesApi = {
     getAllSales: async (): Promise<ApiResponse<Sale[]>> => {
       return await apiService.get('/sales/transactions/sales');
     },
+    getById: async (id: number | string): Promise<ApiResponse<Sale>> => {
+      return await apiService.get(`/sales/transactions/sales/${id}`);
+    },
+    update: async (id: number | string, data: Partial<Sale>): Promise<ApiResponse<Sale>> => {
+      return await apiService.put(`/sales/transactions/sales/${id}`, data);
+    },
+    delete: async (id: number | string): Promise<ApiResponse<void>> => {
+      return await apiService.delete(`/sales/transactions/sales/${id}`);
+    },
+  },
+
+  orders: {
+    create: async (data: {
+      user_id: number;
+      product_id: number;
+      commercial_id: number;
+    }): Promise<ApiResponse<any>> => {
+      return await apiService.post('/sales/order/', data);
+    },
   },
 };
 

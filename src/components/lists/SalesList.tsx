@@ -6,6 +6,7 @@ import PopUpScreen from "@/components/popups/popUpScreen";
 import HeaderSection from "@/components/tables/tableHeader";
 import Pagination from "@/components/tables/paginationComponent";
 import TableData from "@/components/tables/tableData";
+import { salesApi } from "@/services/salesApi";
 import { useState } from "react";
 import { Sale } from "@/types/sale";
 
@@ -18,29 +19,31 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showPopup, setShowPopup] = useState<"add" | "edit" | "delete" | null>(null);
-  const [accountToEdit, setAccountToEdit] = useState<Sale | null>(null);
-  const [accountToDelete, setAccountToDelete] = useState<Sale | null>(null);
-  const [accounts, setAccounts] = useState(salesData);
+  const [saleToEdit, setSaleToEdit] = useState<Sale | null>(null);
+  const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
+  const [sales, setSales] = useState<Sale[]>(salesData);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [selectedSort, setSelectedSort] = useState<string>("Name");
   const sortingOptions = ["Name", "Adding date"];
 
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(accounts.length / itemsPerPage);
+  const totalPages = Math.ceil(sales.length / itemsPerPage);
 
   const openAddAccountPopup = () => setShowPopup("add");
   const openEditAccountPopup = (account: Sale) => {
-    setAccountToEdit(account);
+    setSaleToEdit(account);
     setShowPopup("edit");
   };
   const openDeleteAccountPopup = (account: Sale) => {
-    setAccountToDelete(account);
+    setSaleToDelete(account);
     setShowPopup("delete");
   };
   const closePopup = () => {
     setShowPopup(null);
-    setAccountToEdit(null);
-    setAccountToDelete(null);
+    setSaleToEdit(null);
+    setSaleToDelete(null);
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,15 +51,15 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
     setSearchValue(value);
 
     if (value.trim() !== "") {
-      setAccounts(salesData.filter((sale) => sale.userName.toLowerCase().includes(value)));
+      setSales(salesData.filter((sale) => sale.userName.toLowerCase().includes(value)));
     } else {
-      setAccounts(salesData);
+      setSales(salesData);
     }
   };
 
   const handleSortChange = (sortOption: string) => {
     setSelectedSort(sortOption);
-    const sortedItems = [...accounts];
+    const sortedItems = [...sales];
 
     switch (sortOption) {
       case "Use name":
@@ -67,10 +70,37 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
         break;
     }
 
-    setAccounts(sortedItems);
+    setSales(sortedItems);
   };
 
-  const displayedAccounts = accounts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const fetchSales = async () => {
+    try {
+      setLoading(true);
+      const response = await salesApi.transactions.getAllSales();
+          
+      if (response.success) {
+        const formattedSales = response.data.map((sale: Sale) => ({
+          id: sale.id,
+          userName: sale.userName,
+          commercialName: sale.commercialName,
+          dispositiveId: sale.dispositiveId,
+          Status: sale.Status,
+          date: new Date(sale.date).toISOString().split('T')[0],
+        }));
+            
+        setSales(formattedSales);
+      } else {
+        setError('Failed to fetch sales');
+      }
+    } catch (err) {
+      console.error('Error fetching sales:', err);
+      setError('An error occurred while fetching sales');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayedAccounts = sales.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const columns = [
     { key: "id", label: "Id" },
@@ -85,7 +115,7 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
     <div className="flex flex-col bg-[#1E1E1E] border border-irchad-gray-light shadow-lg rounded-2xl w-full space-y-4 pb-3">
       <HeaderSection
         type={title.toLowerCase()}
-        itemCount={accounts.length}
+        itemCount={sales.length}
         searchValue={searchValue}
         onSearchChange={handleSearch}
         openAddPopup={openAddAccountPopup}
@@ -112,9 +142,9 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
 
       {showPopup && (
         <PopUpScreen>
-          {showPopup === "add" && <AddSale closePopup={closePopup} />}
-          {showPopup === "edit" && accountToEdit && <EditSale sale={accountToEdit} closePopup={closePopup} />}
-          {showPopup === "delete" && accountToDelete && <DeleteSale closePopup={closePopup} />}
+          {showPopup === "add" && <AddSale closePopup={closePopup} onSaleAdded={fetchSales} />}
+          {showPopup === "edit" && saleToEdit && <EditSale sale={saleToEdit} closePopup={closePopup} />}
+          {showPopup === "delete" && saleToDelete && <DeleteSale closePopup={closePopup} saleId={saleToDelete.id} onSaleDeleted={fetchSales} />}
         </PopUpScreen>
       )}
     </div>

@@ -9,6 +9,12 @@ interface ApiResponse<T> {
 }
 
 export const commercialApi = {
+  account: {
+    getCurrent: async (): Promise<ApiResponse<User>> => {
+      return await apiService.get('/account/');
+    },
+  },
+  
   products: {
     getAll: async (): Promise<ApiResponse<Product[]>> => {
         return await apiService.get('/commercial/product/');

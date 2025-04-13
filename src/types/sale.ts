@@ -14,10 +14,6 @@ export type Quotation = {
     
 };
   
-export type Product = {
-    id: number;
-};
-  
 export type QuotationProductAssociation = {
     product_id: number;
     count: number;
