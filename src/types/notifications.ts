@@ -38,7 +38,8 @@ export interface updateNotificationInput {
     metadata?: Record<string, any>;
 }
 
-export interface Notification { id: number;
+export interface Notification { 
+    id: number;
      title: string; 
      message: string; 
      is_read: boolean; 

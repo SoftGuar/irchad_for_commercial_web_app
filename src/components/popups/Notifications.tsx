@@ -1,41 +1,143 @@
 "use client";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-
+import { Bell, Check, Cross, Eye, EyeClosed, Trash2 } from "lucide-react";
+import { Notification } from "@/types/notifications";
+import { notificationsApi } from "@/services/notificationsApi";
 
 interface NotificationsProps {
-  notifications: { id: number; title: string; message: string; is_read: boolean; created_at: string }[];
+  notifications: Notification[];
 }
 
-const Notifications: React.FC<NotificationsProps> = ({ notifications }) => {
-console.log("Notifications", notifications);
+const Notifications = ({ notifications: initialNotifications = [] }: NotificationsProps) => {
+  const [notifications, setNotifications] = useState(initialNotifications);
+  
+  const markAsRead = (id: number) => {
+    notificationsApi.notifications.markAsRead(String(id)).then((response) => {
+      if (response.success) {
+        setNotifications(
+          notifications.map(notification => 
+            notification.id === id ? { ...notification, is_read: true } : notification
+          )
+        );
+      }
+    });
+  };
+  
+  const deleteNotification = (id: number) => {
+    notificationsApi.notifications.delete(String(id)).then((response) => {
+      if (response.success) {
+        setNotifications(
+          notifications.filter(notification => notification.id !== id)
+        );
+      }
+    });
+  };
+  
+  const markAllAsRead = () => {
+    notificationsApi.notifications.markAsRead(
+      notifications.map(notification => String(notification.id)).join(",")
+    ).then((response) => {
+      if (response.success) {
+        setNotifications(
+          notifications.map(notification => ({ ...notification, is_read: true }))
+        );
+      }
+    }
+    )
+    setNotifications(
+      notifications.map(notification => ({ ...notification, is_read: true }))
+    );
+  };
+
+  const markasUnread = (id: number) => {
+    notificationsApi.notifications.markAsUnread(String(id)).then((response) => {
+      if (response.success) {
+        setNotifications(
+          notifications.map(notification => 
+            notification.id === id ? { ...notification, is_read: false } : notification
+          )
+        );
+      }
+    });
+  }
+  
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  // Custom truck icon component since we can't use external images
+  const TruckIcon = () => (
+    <div className="flex items-center justify-center w-6 h-6 text-amber-500">
+      <span className="text-lg">🚚</span>
+    </div>
+  );
 
   return (
-    <div className="w-full bg-[#2E2E2E] lg:col-span-2 p-1 ml-4 mr-20 my-4 rounded-lg  text-[#D3D3D3]">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold mb-4">Notifications</h3>
-
+    <div className="w-full max-w-md bg-[#2E2E2E] rounded shadow-lg">
+      {/* Header */}
+      <div className="flex justify-between items-center px-4 py-3 bg-[#2E2E2E] border-b">
+        <div className="flex items-center space-x-2">
+          <h3 className="text-lg font-medium text-gray-200">Notifications</h3>
+          {unreadCount > 0 && (
+            <span className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
+        </div>
+        <button 
+          onClick={markAllAsRead} 
+          className="text-sm text-blue-400 hover:text-blue-800"
+        >
+          Mark all as read
+        </button>
       </div>
-
-      <div className="relative w-full">
       
-        <div className="absolute left-5 top-1 h-full w-[1px] bg-[#959595]"></div>
-
-      
-        <ul className="space-y-4 pl-6 ">
-          {notifications.map((activity, index) => (
-            <li key={index} className="relative flex items-center gap-4">
-          
-              <div className="w-4 h-4 bg-[#2E2E2E] border-2 border-orange-500 rounded-full absolute top-1 left-[-12px] "></div>
-
-            
-              <div className="border-l-4 border-transparent pl-4">
-                <p className="font-medium">{activity.message}</p>
-                <span className="text-[#959595] text-sm">{activity.created_at}</span>
+      {/* Notifications List */}
+      <div className="max-h-96 overflow-y-auto">
+        {notifications.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">No notifications</div>
+        ) : (
+          notifications.map((notification) => (
+            <div 
+              key={notification.id}
+              className={`p-4 border-b border-gray-100 ${!notification.is_read ? "bg-[#2E2E2E]" : ""}`}
+            >
+              <div className="flex">
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-medium text-gray-50">{notification.title}</h4>
+                    <div className="flex space-x-1">
+                      {!notification.is_read ? (
+                        <button 
+                          onClick={() => markAsRead(notification.id)}
+                          className="text-blue-400 hover:text-blue-800"
+                          title="Mark as read"
+                        >
+                          <Eye size={20} className="text-blue-400" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => markasUnread(notification.id)}
+                          className="text-blue-400 hover:text-blue-800"
+                          title="Mark as Unread"
+                          >
+                        <EyeClosed size={20} className="text-blue-400" />
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => deleteNotification(notification.id)}
+                        className="text-red-500 hover:text-red-700"
+                        title="Delete"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-gray-100 my-1">{notification.message}</p>
+                  <span className="text-xs text-gray-200">{notification.created_at}</span>
+                </div>
               </div>
-            </li>
-          ))}
-        </ul>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
