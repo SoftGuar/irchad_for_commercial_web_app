@@ -2,9 +2,9 @@
 import Sidebar from '@/components/shared/sidebar/sidebar';
 import Navbar from '@/components/shared/navbar/navbar';
 import Footer from '@/components/shared/footer/footer';
-import { UserProvider } from '@/utils/userContext';
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useUser } from '@/utils/userContext';
 
 export default function Layout({ 
     children 
@@ -12,26 +12,26 @@ export default function Layout({
     children: React.ReactNode;
 }) {
     const router = useRouter();
+    const { user, isLoading } = useUser();
 
     useEffect(() => {
-        const checkAuth = () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                router.push('/login');
-            }
-        };
+        if (!isLoading && !user) {
+            router.push('/login');
+        }
+    }, [user, isLoading, router]);
 
-        checkAuth();
-    }, [router]);
+    if (isLoading || !user) {
+        return <div>Loading...</div>;
+    }
 
     return (
-        <UserProvider>
+        <>
             <Navbar />
             <div className="flex">
                 <Sidebar />
                 <main className="flex-1 bg-irchad-gray-dark">{children}</main>
             </div>
             <Footer />
-        </UserProvider>
+        </>
     )
 }

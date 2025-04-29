@@ -32,7 +32,7 @@ export default function LoginPage() {
         const userResponse = await userApi.getCurrentUser();
         if (userResponse.success) {
           setUser(userResponse.data);
-          router.push('/(logged_in)');
+          router.push('/');
         }
       } else {
         setError('Invalid response from server');
