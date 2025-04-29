@@ -4,11 +4,11 @@ import { ChevronDown } from "lucide-react";
 
 
 interface NotificationsProps {
-  notifications: { message: string; timestamp:string }[];
+  notifications: { id: number; title: string; message: string; is_read: boolean; created_at: string }[];
 }
 
 const Notifications: React.FC<NotificationsProps> = ({ notifications }) => {
-
+console.log("Notifications", notifications);
 
   return (
     <div className="w-full bg-[#2E2E2E] lg:col-span-2 p-1 ml-4 mr-20 my-4 rounded-lg  text-[#D3D3D3]">
@@ -31,7 +31,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications }) => {
             
               <div className="border-l-4 border-transparent pl-4">
                 <p className="font-medium">{activity.message}</p>
-                <span className="text-[#959595] text-sm">{activity.timestamp}</span>
+                <span className="text-[#959595] text-sm">{activity.created_at}</span>
               </div>
             </li>
           ))}
