@@ -11,7 +11,7 @@ notifications: {
     getAll: async (userId: string): Promise<ApiResponse<Notification[]>> => {
         return {
             success: true,
-            data: await apiService.get(`/notifications/notifications/${userId}`),
+            data: await apiService.get(`/notifications/notifications/${userId}/COMMERCIAL`),
         };
     },
 

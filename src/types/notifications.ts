@@ -6,6 +6,7 @@ export interface NotificationPayload {
     broadcast: boolean;
     recipient: Array<{
         userId: number;
+        userType: string;
         email: string;
     }>;
     message: {

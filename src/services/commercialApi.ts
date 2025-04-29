@@ -17,7 +17,7 @@ export const commercialApi = {
   
   products: {
     getAll: async (): Promise<ApiResponse<Product[]>> => {
-        return await apiService.get('/commercial/product/');
+        return await apiService.get('/sales/products/');
     },
     getById: async (id: number | string): Promise<ApiResponse<Product>> => {
         return await apiService.get(`/commercial/product/${id}`);

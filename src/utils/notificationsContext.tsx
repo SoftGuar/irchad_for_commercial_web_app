@@ -1,11 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
-
-interface Notification {
-    title: string;
-    message: string;
-}
+import type { Notification } from '@/types/notifications';
 
 interface NotificationsContextType {
     notifications: Notification[];
@@ -22,7 +18,7 @@ export function NotificationsProvider({ children, userId }: { children: ReactNod
     useEffect(() => {
         if (!userId) return;
 
-        const ws = new WebSocket(`ws://localhost:2000/notifications/websocket/ws/${userId}`);
+        const ws = new WebSocket(`ws://localhost:2000/notifications/websocket/ws/${userId}/COMMERCIAL`);
         wsRef.current = ws;
 
         ws.onopen = () => {

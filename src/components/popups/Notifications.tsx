@@ -1,16 +1,29 @@
 "use client";
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { Bell, Check, Cross, Eye, EyeClosed, Trash2 } from "lucide-react";
 import { Notification } from "@/types/notifications";
 import { notificationsApi } from "@/services/notificationsApi";
-
+import { useNotifications } from "@/utils/notificationsContext";
 interface NotificationsProps {
   notifications: Notification[];
 }
 
 const Notifications = ({ notifications: initialNotifications = [] }: NotificationsProps) => {
   const [notifications, setNotifications] = useState(initialNotifications);
+  const { notifications: contextNotifications, wsConnected } = useNotifications();
+  useEffect(() => {
+    if (contextNotifications.length === 0) return;
   
+    // Get the latest one (assuming it's prepended in context)
+    const latest = contextNotifications[0];
+  
+    // Check if it's already in local state
+    const exists = notifications.some(n => n.message === latest.message && n.title === latest.title);
+  
+    if (!exists) {
+      setNotifications(prev => [latest, ...prev]);
+    }
+  }, [contextNotifications]);
   const markAsRead = (id: number) => {
     notificationsApi.notifications.markAsRead(String(id)).then((response) => {
       if (response.success) {
@@ -63,19 +76,12 @@ const Notifications = ({ notifications: initialNotifications = [] }: Notificatio
   
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
-  // Custom truck icon component since we can't use external images
-  const TruckIcon = () => (
-    <div className="flex items-center justify-center w-6 h-6 text-amber-500">
-      <span className="text-lg">🚚</span>
-    </div>
-  );
-
   return (
     <div className="w-full max-w-md bg-[#2E2E2E] rounded shadow-lg">
       {/* Header */}
       <div className="flex justify-between items-center px-4 py-3 bg-[#2E2E2E] border-b">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-200">Notifications</h3>
+          <h3 className="text-lg font-medium text-gray-200">Notifications {wsConnected ? '🟢' : '🔴'}</h3>
           {unreadCount > 0 && (
             <span className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
               {unreadCount}
