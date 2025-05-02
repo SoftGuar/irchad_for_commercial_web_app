@@ -1,20 +1,27 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { MagnifyingGlassIcon, BellIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Notifications from "@/components/popups/Notifications";
 import { useUser } from "@/utils/userContext";
 import { notificationsApi } from "@/services/notificationsApi";
-import { Notification } from "@/types/notifications";
+import { NotificationType } from "@/types/notifications";
+import { useNotifications } from "@/utils/notificationsContext";
 
 const Navbar = () => {
   const { user, isLoading } = useUser();
   const router = useRouter();
+  const { notifications: contextNotifications } = useNotifications();
 
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+
+  // Calculate unread count using useMemo
+  const unreadCount = useMemo(() => {
+    return notifications.filter(n => !n.is_read).length;
+  }, [notifications]);
 
   // Fetch notifications when user is available
   useEffect(() => {
@@ -23,14 +30,16 @@ const Navbar = () => {
       
       try {
         setIsLoadingNotifications(true);
-        const userId = String(user.id); // Ensure id is a string
-        notificationsApi.notifications.getAll(userId).then((response) => {
-          console.log("Response from API:", response);
-          if (response.success) {
-            setNotifications(response.data);
-            console.log("Fetched notifications:", response.data);
-          }
-        });
+        const userId = String(user.id);
+        const response = await notificationsApi.notifications.getAll(userId);
+        if (response.success) {
+          // Sort immediately when setting
+          const sorted = response.data.sort((a, b) => {
+            if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
+            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+          });
+          setNotifications(sorted);
+        }
       } catch (error) {
         console.error("Error fetching notifications:", error);
       } finally {
@@ -40,6 +49,29 @@ const Navbar = () => {
 
     fetchNotifications();
   }, [user?.id]);
+
+  // Update notifications when new ones come through WebSocket
+  useEffect(() => {
+    if (contextNotifications.length === 0) return;
+    
+    setNotifications(prev => {
+      // Create a map to avoid duplicates
+      const notificationMap = new Map<number, NotificationType>();
+      
+      // Add all existing notifications
+      prev.forEach(notif => notificationMap.set(notif.id, notif));
+      
+      // Add/update with new context notifications
+      contextNotifications.forEach(notif => notificationMap.set(notif.id, notif));
+      
+      // Convert back to array and sort
+      const merged = Array.from(notificationMap.values());
+      return merged.sort((a, b) => {
+        if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      });
+    });
+  }, [contextNotifications]);
 
   // Handle clicks outside the notification popup
   useEffect(() => {
@@ -53,7 +85,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Show a minimal loading state when user data is loading
   if (isLoading) {
     return (
       <nav className="bg-[#2E2E2E] text-white py-3 px-6 flex items-center justify-between">
@@ -92,9 +123,9 @@ const Navbar = () => {
               onClick={() => setShowNotifications((prev) => !prev)}
               className="h-6 w-6 text-gray-400 cursor-pointer hover:text-white"
             />
-            {notifications.length > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {notifications.length > 9 ? '9+' : notifications.length}
+                {unreadCount}
               </span>
             )}
           </div>

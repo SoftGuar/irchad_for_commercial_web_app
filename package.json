@@ -12,6 +12,7 @@
     "@heroicons/react": "^2.2.0",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
+    "irchad_for_commercial_web_app": "file:",
     "lucide-react": "^0.479.0",
     "next": "15.2.2",
     "rc-progress": "^4.0.0",
