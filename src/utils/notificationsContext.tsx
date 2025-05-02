@@ -39,8 +39,8 @@ export function NotificationsProvider({ children, userId }: { children: ReactNod
           
           const notification: NotificationType = {
             id: incomingNotification.data.requestId,
-            title: incomingNotification.data.message?.subject || 'New Notification',
-            message: incomingNotification.data.message?.body || 'You have a new notification.',
+            title: incomingNotification.data.message?.pushNotification.title || 'New Notification',
+            message: incomingNotification.data.message?.pushNotification.body || 'You have a new notification.',
             is_read: false,
             created_at: new Date().toISOString(),
           };

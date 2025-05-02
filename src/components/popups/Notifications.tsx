@@ -1,133 +1,110 @@
 "use client";
-import { useState } from "react";
-import { Eye, EyeClosed, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Trash2 } from "lucide-react";
 import { NotificationType } from "@/types/notifications";
-import { notificationsApi } from "@/services/notificationsApi";
 import { useNotifications } from "@/utils/notificationsContext";
+import { useMemo } from "react";
 
 interface NotificationsProps {
   notifications: NotificationType[];
+  onMarkAsRead: (id: number) => void;
+  onDelete: (id: number) => void;
+  onMarkAllAsRead: () => void;
+  onMarkAsUnread: (id: number) => void;
 }
 
-const Notifications = ({ notifications }: NotificationsProps) => {
+const Notifications = ({ 
+  notifications,
+  onMarkAsRead,
+  onDelete,
+  onMarkAllAsRead,
+  onMarkAsUnread
+}: NotificationsProps) => {
   const { wsConnected } = useNotifications();
-  const [localNotifications, setLocalNotifications] = useState(notifications);
-
-  const unreadCount = localNotifications.filter(n => !n.is_read).length;
-
-  const updateNotification = (id: number, updates: Partial<NotificationType>) => {
-    setLocalNotifications(prev =>
-      prev.map(notification => 
-        notification.id === id ? { ...notification, ...updates } : notification
-      )
-    );
-  };
-
-  const markAsRead = (id: number) => {
-    updateNotification(id, { is_read: true });
-    notificationsApi.notifications.markAsRead(id).catch(console.error);
-  };
   
-  const deleteNotification = (id: number) => {
-    setLocalNotifications(prev => prev.filter(n => n.id !== id));
-    notificationsApi.notifications.delete(id).catch(console.error);
-  };
-  
-  const markAllAsRead = () => {
-    setLocalNotifications(prev =>
-      prev.map(n => n.is_read ? n : { ...n, is_read: true })
-    );
-    
-    const unreadIds = localNotifications
-      .filter(n => !n.is_read)
-      .map(n => n.id);
-    
-    Promise.all(
-      unreadIds.map(id => notificationsApi.notifications.markAsRead(id))
-    ).catch(console.error);
-  };
-
-  const markAsUnread = (id: number) => {
-    updateNotification(id, { is_read: false });
-    notificationsApi.notifications.markAsUnread(id).catch(console.error);
-  };
+  const { sortedNotifications, unreadCount } = useMemo(() => {
+    const sorted = [...notifications].sort((a, b) => {
+      if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
+      return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime();
+    });
+    return {
+      sortedNotifications: sorted,
+      unreadCount: sorted.filter(n => !n.is_read).length
+    };
+  }, [notifications]);
 
   return (
-    <div className="w-full max-w-md bg-[#2E2E2E] rounded shadow-lg">
-      <div className="flex justify-between items-center px-4 py-3 bg-[#2E2E2E] border-b">
-        <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-200">
-            Notifications {wsConnected ? '🟢' : '🔴'}
-          </h3>
-          {unreadCount > 0 && (
-            <span className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
-        </div>
-        <button 
-          onClick={markAllAsRead} 
-          className="text-sm text-blue-400 hover:text-blue-800"
-          disabled={unreadCount === 0}
-        >
-          Mark all as read
-        </button>
+    <div className="w-full bg-[#2E2E2E] rounded shadow-lg">
+      <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700">
+        <h3 className="font-medium">Notifications ({sortedNotifications.length})</h3>
+        {unreadCount > 0 && (
+          <button 
+            onClick={onMarkAllAsRead}
+            className="text-xs text-blue-400 hover:text-blue-500"
+          >
+            Mark all as read
+          </button>
+        )}
       </div>
       
       <div className="max-h-96 overflow-y-auto">
-        {localNotifications.length === 0 ? (
+        {sortedNotifications.length === 0 ? (
           <div className="p-4 text-center text-gray-500">No notifications</div>
         ) : (
-          localNotifications.map((notification) => (
+          sortedNotifications.map((notification) => (
             <div 
               key={`notification-${notification.id}`}
-              className={`p-4 border-b border-gray-100 ${!notification.is_read ? "bg-[#2E2E2E]" : ""}`}
+              className={`p-4 border-b border-gray-700 ${!notification.is_read ? "bg-[#3A3A3A]" : ""}`}
             >
-              <div className="flex">
+              <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <h4 className="font-medium text-gray-50">
-                      {notification.title || 'Notification'}
-                    </h4>
-                    <div className="flex space-x-1">
-                      {!notification.is_read ? (
-                        <button 
-                          onClick={() => markAsRead(notification.id)}
-                          className="text-blue-400 hover:text-blue-800"
-                          title="Mark as read"
-                        >
-                          <Eye size={20} className="text-blue-400" />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => markAsUnread(notification.id)}
-                          className="text-blue-400 hover:text-blue-800"
-                          title="Mark as Unread"
-                        >
-                          <EyeClosed size={20} className="text-blue-400" />
-                        </button>
-                      )}
-                      <button 
-                        onClick={() => deleteNotification(notification.id)}
-                        className="text-red-500 hover:text-red-700"
-                        title="Delete"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-gray-100 my-1">
+                  <p className="text-gray-100 mb-1">
                     {notification.message || 'No message content'}
                   </p>
-                  <span className="text-xs text-gray-200">
-                    {notification.created_at || 'Unknown date'}
+                  <span className="text-xs text-gray-400">
+                    {notification.created_at ? new Date(notification.created_at).toLocaleString() : 'Unknown date'}
                   </span>
+                </div>
+                <div className="flex space-x-2 ml-2">
+                  {!notification.is_read ? (
+                    <button
+                      onClick={() => onMarkAsRead(notification.id)}
+                      className="text-blue-400 hover:text-blue-300"
+                      title="Mark as read"
+                    >
+                      <Eye size={16} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onMarkAsUnread(notification.id)}
+                      className="text-blue-400 hover:text-blue-300"
+                      title="Mark as Unread"
+                    >
+                      <EyeOff size={16} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => onDelete(notification.id)}
+                    className="text-red-500 hover:text-red-400"
+                    title="Delete"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
             </div>
           ))
         )}
       </div>
+      
+      {wsConnected ? (
+        <div className="px-4 py-2 text-xs text-green-500 border-t border-gray-700">
+          Connected to notifications service
+        </div>
+      ) : (
+        <div className="px-4 py-2 text-xs text-yellow-500 border-t border-gray-700">
+          Offline: Notifications may not be real-time
+        </div>
+      )}
     </div>
   );
 };

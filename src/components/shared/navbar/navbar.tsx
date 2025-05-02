@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { MagnifyingGlassIcon, BellIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -18,12 +18,10 @@ const Navbar = () => {
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
-  // Calculate unread count using useMemo
   const unreadCount = useMemo(() => {
     return notifications.filter(n => !n.is_read).length;
   }, [notifications]);
 
-  // Fetch notifications when user is available
   useEffect(() => {
     const fetchNotifications = async () => {
       if (!user?.id) return;
@@ -50,21 +48,13 @@ const Navbar = () => {
     fetchNotifications();
   }, [user?.id]);
 
-  // Update notifications when new ones come through WebSocket
   useEffect(() => {
     if (contextNotifications.length === 0) return;
     
     setNotifications(prev => {
-      // Create a map to avoid duplicates
       const notificationMap = new Map<number, NotificationType>();
-      
-      // Add all existing notifications
       prev.forEach(notif => notificationMap.set(notif.id, notif));
-      
-      // Add/update with new context notifications
       contextNotifications.forEach(notif => notificationMap.set(notif.id, notif));
-      
-      // Convert back to array and sort
       const merged = Array.from(notificationMap.values());
       return merged.sort((a, b) => {
         if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
@@ -73,6 +63,69 @@ const Navbar = () => {
     });
   }, [contextNotifications]);
 
+  const handleMarkAsRead = useCallback(async (id: number) => {
+    try {
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, is_read: true } : n
+      ));
+      
+      await notificationsApi.notifications.markAsRead(id);
+    } catch (error) {
+      console.error("Failed to mark as read:", error);
+      // Revert if API fails
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, is_read: false } : n
+      ));
+    }
+  }, []);
+
+  const handleDeleteNotification = useCallback(async (id: number) => {
+    try {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      
+      await notificationsApi.notifications.delete(id);
+    } catch (error) {
+      console.error("Failed to delete:", error);
+    }
+  }, []);
+
+  const handleMarkAllAsRead = useCallback(async () => {
+    const unreadIds = notifications
+      .filter(n => !n.is_read)
+      .map(n => n.id);
+    
+    if (unreadIds.length === 0) return;
+    
+    setNotifications(prev => prev.map(n => 
+      !n.is_read ? { ...n, is_read: true } : n
+    ));
+    
+    try {
+      await Promise.all(
+        unreadIds.map(id => notificationsApi.notifications.markAsRead(id))
+      );
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+      setNotifications(prev => prev.map(n => 
+        unreadIds.includes(n.id) ? { ...n, is_read: false } : n
+      ));
+    }
+  }, [notifications]);
+
+  const handleMarkAsUnread = useCallback(async (id: number) => {
+    try {
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, is_read: false } : n
+      ));
+      
+      await notificationsApi.notifications.markAsUnread(id);
+    } catch (error) {
+      console.error("Failed to mark as unread:", error);
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, is_read: true } : n
+      ));
+    }
+  }, []);
   // Handle clicks outside the notification popup
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -139,7 +192,13 @@ const Navbar = () => {
               {isLoadingNotifications ? (
                 <div className="py-4 text-center">Loading notifications...</div>
               ) : (
-                <Notifications notifications={notifications} />
+                <Notifications 
+              notifications={notifications}
+              onMarkAsRead={handleMarkAsRead}
+              onDelete={handleDeleteNotification}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onMarkAsUnread={handleMarkAsUnread}
+            />
               )}
             </div>
           )}
