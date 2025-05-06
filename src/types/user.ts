@@ -4,8 +4,9 @@ export interface User {
     last_name: string;
     email: string;
     phone: string;
-    // addingDate: string;
-    // lastEdited: string;
+    MAC: string;
+    // created_at: string;
+    // updated_at: string;
   }
   
 export interface UsersResponse {

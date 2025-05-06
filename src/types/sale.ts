@@ -1,5 +1,5 @@
 export interface Sale {
-    id: number;
+    transactionId: number;
     userName: string;
     commercialName: string;
     date: string;
