@@ -19,7 +19,7 @@ const SalesPage = () => {
         
         if (response.success) {
           const formattedSales = response.data.map((sale: Sale) => ({
-            id: sale.id,
+            transactionId: sale.transactionId,
             userName: sale.userName,
             commercialName: sale.commercialName,
             dispositiveId: sale.dispositiveId,

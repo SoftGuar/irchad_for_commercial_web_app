@@ -23,28 +23,28 @@ const EditSale: React.FC<EditSaleProps> = ({ closePopup, sale }) => {
             <p className="text-sm text-irchad-gray-light font-roboto">Modify sale details below</p>
 
             <div className="flex flex-col space-y-2 w-full">
-                <p className="text-[16px] text-irchad-gray-light font-roboto">Name</p>
+                <p className="text-[16px] text-irchad-gray-light font-roboto">User name</p>
                 <input
                     type="text"
-                    defaultValue={sale.name}
+                    defaultValue={sale.userName}
                     className="focus:outline-none bg-irchad-gray rounded-lg p-2 text-[16px] text-irchad-white font-roboto"
                 />
             </div>
 
             <div className="flex flex-col space-y-2 w-full">
-                <p className="text-[16px] text-irchad-gray-light font-roboto">Email</p>
+                <p className="text-[16px] text-irchad-gray-light font-roboto">Commercial Name</p>
                 <input
                     type="text"
-                    defaultValue={sale.email}
+                    defaultValue={sale.commercialName}
                     className="focus:outline-none bg-irchad-gray rounded-lg p-2 text-[16px] text-irchad-white font-roboto"
                 />
             </div>
 
             <div className="flex flex-col space-y-2 w-full">
-                <p className="text-[16px] text-irchad-gray-light font-roboto">Phone</p>
+                <p className="text-[16px] text-irchad-gray-light font-roboto">Status</p>
                 <input
                     type="text"
-                    defaultValue={sale.phone}
+                    defaultValue={String(sale.Status)}
                     className="focus:outline-none bg-irchad-gray rounded-lg p-2 text-[16px] text-irchad-white font-roboto"
                 />
             </div>
@@ -53,7 +53,7 @@ const EditSale: React.FC<EditSaleProps> = ({ closePopup, sale }) => {
                 <p className="text-[16px] text-irchad-gray-light font-roboto">Dispositif Number</p>
                 <input
                     type="text"
-                    defaultValue={sale.deviceId}
+                    defaultValue={sale.dispositiveId}
                     className="focus:outline-none bg-irchad-gray rounded-lg p-2 text-[16px] text-irchad-white font-roboto"
                 />
             </div>

@@ -14,6 +14,7 @@ const AddCustomer: React.FC<AddCustomerProps> = ({ closePopup, onUserAdded }) =>
     email: '',
     password: '',
     phone: '',
+    mac: '',
     note: ''
   });
   const [loading, setLoading] = useState(false);
@@ -43,8 +44,11 @@ const AddCustomer: React.FC<AddCustomerProps> = ({ closePopup, onUserAdded }) =>
         last_name: formData.lastName,
         email: formData.email,
         password: formData.password,
-        phone: formData.phone || 'string' 
+        phone: formData.phone || 'string',
+        MAC: formData.mac || 'string'
       };
+
+      console.log(userData);
 
       const response = await commercialApi.users.create(userData);
       
@@ -138,11 +142,11 @@ const AddCustomer: React.FC<AddCustomerProps> = ({ closePopup, onUserAdded }) =>
       </div>
 
       <div className="flex flex-col space-y-2 w-full">
-        <p className="text-[16px] text-irchad-gray-light font-roboto">Note (Optional)</p>
+        <p className="text-[16px] text-irchad-gray-light font-roboto">MAC</p>
         <input
-          name="note"
+          name="mac"
           type="text"
-          value={formData.note}
+          value={formData.mac}
           onChange={handleChange}
           className="focus:outline-none bg-irchad-gray rounded-lg p-2 text-[16px] text-irchad-white font-roboto"
         />

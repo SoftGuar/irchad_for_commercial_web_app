@@ -80,7 +80,7 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
           
       if (response.success) {
         const formattedSales = response.data.map((sale: Sale) => ({
-          id: sale.id,
+          transactionId: sale.transactionId,
           userName: sale.userName,
           commercialName: sale.commercialName,
           dispositiveId: sale.dispositiveId,
@@ -103,7 +103,7 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
   const displayedAccounts = sales.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const columns = [
-    { key: "id", label: "Id" },
+    { key: "transactionId", label: "Id" },
     { key: "userName", label: "Name" },
     { key: "commercialName", label: "Agent" },
     { key: "dispositiveId", label: "Device ID" },
@@ -144,7 +144,7 @@ const SalesList: React.FC<SalesListProps> = ({ title, salesData }) => {
         <PopUpScreen>
           {showPopup === "add" && <AddSale closePopup={closePopup} onSaleAdded={fetchSales} />}
           {showPopup === "edit" && saleToEdit && <EditSale sale={saleToEdit} closePopup={closePopup} />}
-          {showPopup === "delete" && saleToDelete && <DeleteSale closePopup={closePopup} saleId={saleToDelete.id} onSaleDeleted={fetchSales} />}
+          {showPopup === "delete" && saleToDelete && <DeleteSale closePopup={closePopup} saleId={saleToDelete.transactionId} onSaleDeleted={fetchSales} />}
         </PopUpScreen>
       )}
     </div>
