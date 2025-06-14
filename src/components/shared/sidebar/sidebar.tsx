@@ -6,8 +6,8 @@ import Link from "next/link";
 
 const Sidebar = () => {
   const [isAccountsOpen, setIsAccountsOpen] = useState(true);
-  const [selectedItem, setSelectedItem] = useState("");
-  const [selectedMain, setSelectedMain] = useState(""); // Track the selected main menu item
+  const [selectedItem, setSelectedItem] = useState("List");
+  const [selectedMain, setSelectedMain] = useState("customers"); // Track the selected main menu item
 
  
   const handleSubmenuClick = (item: string) => {
@@ -32,7 +32,7 @@ const Sidebar = () => {
     >
       {/* Navigation */}
       <nav className="mt-6 space-y-2">
-        {/* Home Section */}
+        {/* Home Section
         <Link
           href="/"
           className={`flex items-center gap-2 text-sm px-3 py-2 rounded-md ${
@@ -42,7 +42,7 @@ const Sidebar = () => {
         >
           <LayoutGrid className="w-5 h-5" />
           <span>Dashboard</span>
-        </Link>
+        </Link> */}
 
         {/* Pages Section */}
         <h3 className="text-gray-400 text-sm mt-4">Pages</h3>
@@ -67,7 +67,7 @@ const Sidebar = () => {
         {/* Sub-menu */}
         {isAccountsOpen && (
           <div className="ml-6 mt-1 space-y-1">
-            {[{Label:"List", route:"customers"}, {Label: "Add customer", route:"customers"}].map((item) => (
+            {[{Label:"List", route:"customers"}].map((item) => (
               <Link
                 key={item.Label}
                 href={`/${item.route}`}

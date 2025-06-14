@@ -93,6 +93,8 @@ const TableData = <T,>({
                       {page === "environments" && (item[column.key] == null) ? "" : String(item[column.key] || "")}
                     </p>
                   </>
+                ) : column.key === "Status" ? (
+                  <p className="text-irchad-gray-light text-[16px] font-product-sans">{String(item[column.key]) === "true" ? "active" : "not active"}</p>
                 ) : (
                   <p className="text-irchad-gray-light text-[16px] font-product-sans">
                     {page === "environments" && (item[column.key] == null) ? "" : String(item[column.key] || "")}

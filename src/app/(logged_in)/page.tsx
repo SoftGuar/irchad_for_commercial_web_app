@@ -1,90 +1,101 @@
 "use client";
-import MetricCards from "@/components/cards/MetricCards";
-import SalesChart from "@/components/cards/SalesCostChart";
-import ActivityHistoryCard from "@/components/cards/ActivityHistoryCard";
 import Image from "next/image";
+import AccountList from "@/components/lists/CustomersList";
+import { useEffect, useState } from "react";
+import { commercialApi } from "@/services/commercialApi";
+import { User } from "@/types/user";
 
-// Define the card data type
-interface CardData {
-  title: string;
-  value: number | string;
-  unit?: string;
-  percentage: number;
-  iconColor: string;
+interface FormattedUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  addingDate: string;
+  lastEdited: string;
+  note: string;
 }
 
-// Sample Data for Metric Cards
-const cardData: CardData[] = [
-  { title: "Total Sales", value: "8k", unit: "", percentage: 75, iconColor: "#f97316" }, // Orange
-  { title: "Total Earnings", value: "120K", unit: "D.A", percentage: 60, iconColor: "#0ea5e9" }, // Blue
-  { title: "Total Customers", value: "6K", percentage: 60, iconColor: "#facc15" }, // Yellow
-  { title: "Warnings", value: 2, percentage: 40, iconColor: "#ef4444" }, // Red
-];
 
-// Sample Data for the Chart
-const chartData = [
-  { month: "Jan", sales: 90 },
-  { month: "Feb", sales: 85},
-  { month: "Mar", sales: 95 },
-  { month: "Apr", sales: 88 },
-  { month: "May", sales: 92 },
-  { month: "Jun", sales: 87},
-  { month: "Jul", sales: 94 },
-  { month: "Aug", sales: 96 },
-];
-const notifications = [
-    { message: "order #AGYDGYW32 is delayed.", timestamp: "11 JUL 8:10 PM" },
-    { message: "New order received: #8744152.", timestamp: "11 JUL 11 PM" },
-    { message: 'Customer "Ahmed Kada" requested assistance.', timestamp: "11 JUL 7:54 PM" },
-    { message: 'New customer account created: "Remache Islam".', timestamp: "11 JUL 1:21 AM" },
+const CustomersPage = () => {
+  const [users, setUsers] = useState<FormattedUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await commercialApi.users.getAll();
+        
+        if (response.success) {
+          const formattedUsers = response.data.map((user: User) => ({
+            id: user.id.toString(),
+            name: `${user.first_name} ${user.last_name}`.trim(),
+            email: user.email,
+            phone: user.phone,
 
-  ];
-  
+            //for now
+            addingDate: new Date().toISOString().split('T')[0], 
+            lastEdited: new Date().toISOString().split('T')[0], 
+            note: '',
+          }));
+          setUsers(formattedUsers);
+        } else {
+          setError('Failed to fetch users');
+        }
+      } catch (err) {
+        setError('An error occurred while fetching users');
+        console.error('Error fetching users:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-export default function Dashboard() {
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-irchad-orange"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative min-h-screen text-white bg-irchad-gray-dark w-full overflow-x-hidden">
-      {/* Background Image */}
-      <div className="absolute h-1/4 w-full rounded-b-lg overflow-hidden">
-        <Image
-          src="/images/headers/header.svg"
-          alt="Background"
-          layout="fill"
-          objectFit="cover"
-          quality={100}
+    <div className="flex flex-col w-full min-h-screen pb-5">
+      <div className="flex relative w-full">
+        <Image 
+          src="/images/headers/header.svg" 
+          alt="header" 
+          width={1663} 
+          height={236}
           priority
-          className="rounded-b-lg"
         />
-        <div className="absolute top-1/2 left-10 transform -translate-y-1/2 text-white">
-          <h1 className="text-4xl font-bold drop-shadow-lg">Hello Commercial !</h1>
-          <p className="text-lg drop-shadow-md">Discover what’s new in Irchad</p>
+        <div className="absolute inset-0 flex flex-col p-6 items-start justify-start text-white text-[35px] font-roboto-bold">
+          Customers
+          <p className="text-[20px] font-roboto-light">Where you manage your customers</p>
         </div>
       </div>
 
-      {/* Content Wrapper */}
-      <div className="relative z-0 w-full mt-40">
-        <div className="w-full max-w-7xl mx-auto space-y-6 px-6">
-          {/* Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 ">
-            {cardData.map((card, index) => (
-              <MetricCards key={index} {...card} />
-            ))}
-          </div>
-
-          {/* Sales Chart & Notifications Container */}
-          <div className="flex flex-col lg:flex-row gap-6 w-full">
-            <div className="w-full lg:w-2/3 bg-[#2E2E2E] p-6 rounded-xl shadow-lg">
-              <h2 className="text-white text-lg font-semibold mb-4">Sales Chart</h2>
-              <SalesChart data={chartData} />
-            </div>
-
-            <div className="w-full lg:w-1/3 bg-[#2E2E2E] rounded-xl shadow-lg">
-              <ActivityHistoryCard title="Notifications" activities={notifications} />
-            </div>
-          </div>
-        </div>
+      <div className="flex -mt-10 justify-center items-start min-h-screen w-full z-0">
+        <div className="w-[95%]">
+          <AccountList 
+            title="Customer" 
+            accountsData={users} 
+          />
         </div>
       </div>
+    </div>
   );
-}
+};
+
+export default CustomersPage;
