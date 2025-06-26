@@ -7,6 +7,8 @@ First, install the dependencies
 npm i
 ```
 
+create a ".env" file and put in it the content of the ".env.example" file
+
 make sure these backend services are running: Notification, Authentification, Admin, Account managemenet, Sales 
 
 Then, run the development server:
