@@ -7,9 +7,12 @@ First, install the dependencies
 npm i
 ```
 
-create a ".env" file and put in it the content of the ".env.example" file
+**Copy the environment file**
+   ```bash
+   cp .env.example .env
+   ```
 
-make sure these backend services are running: 
+**Make sure these backend services are running:** 
   - `Notification-service`
   - `Authentification-service`
   - `Admin-service`
@@ -17,7 +20,7 @@ make sure these backend services are running:
   - `Sales-service`
   - `Gateway` 
 
-Then, run the development server:
+**Then, run the development server:**
 
 ```bash
 npm run dev
