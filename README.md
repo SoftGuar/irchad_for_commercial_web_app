@@ -9,7 +9,13 @@ npm i
 
 create a ".env" file and put in it the content of the ".env.example" file
 
-make sure these backend services are running: Notification, Authentification, Admin, Account managemenet, Sales 
+make sure these backend services are running: 
+  - `Notification-service`
+  - `Authentification-service`
+  - `Admin-service`
+  - `Account-managemenet-service`
+  - `Sales-service`
+  - `Gateway` 
 
 Then, run the development server:
 
